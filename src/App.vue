@@ -16,16 +16,16 @@
       </ul>
       </p>
 
-      <form id="form" @submit.prevent="salvar">
+      <form id="form" @submit.prevent="save">
 
         <label>Nome</label>
-        <input type="text" placeholder="Nome" v-model="contato.nome">
+        <input type="text" placeholder="Nome" v-model="contact.name">
         <label>Email</label>
-        <input type="text" placeholder="Email" v-model="contato.email">
+        <input type="text" placeholder="Email" v-model="contact.email">
         <label>Telefone</label>
-        <input type="tel" placeholder="Telefone" v-model="contato.telefone">
+        <input type="tel" placeholder="Telefone" v-model="contact.phone">
 
-        <button class="waves-effect waves-light btn-small" @click="checarForm">Salvar<i
+        <button class="waves-effect waves-light btn-small" @click="checkForm">Salvar<i
             class="material-icons left">save</i></button>
 
       </form>
@@ -44,15 +44,15 @@
 
         <tbody>
 
-          <tr v-for="contato of contatos" :key="contato.agendaId">
+          <tr v-for="contact of contacts" :key="contact.id">
 
-            <td>{{ contato.nome }}</td>
-            <td>{{ contato.email }}</td>
-            <td>{{ contato.telefone }}</td>
+            <td>{{ contact.name }}</td>
+            <td>{{ contact.email }}</td>
+            <td>{{ contact.phone }}</td>
             <td>
-              <button @click="editar(contato)" class="waves-effect btn-small blue darken-1"><i
+              <button @click="edit(contact)" class="waves-effect btn-small blue darken-1"><i
                   class="material-icons">create</i></button>
-              <button @click="remover(contato)" class="waves-effect btn-small red darken-1"><i
+              <button @click="remove(contact)" class="waves-effect btn-small red darken-1"><i
                   class="material-icons">delete_sweep</i></button>
             </td>
 
@@ -69,81 +69,81 @@
 
 <script>
 
-import Contato from './services/contatos'
+import Contact from './services/contacts'
 
 export default {
   name: 'app',
   data() {
     return {
-      contato: {
-        agendaId: '',
-        nome: '',
+      contact: {
+        id: '',
+        name: '',
         email: '',
-        telefone: ''
+        phone: ''
       },
-      contatos: [],
+      contacts: [],
       errors: []
     }
   },
   mounted() {
-    this.listar()
+    this.list()
   },
   methods: {
-    checarForm: function () {
+    checkForm: function () {
       this.errors = [];
 
-      if (!this.contato.nome) {
+      if (!this.contact.name) {
         this.errors.push('O nome deve ser preenchido')
       }
-      if (!this.contato.email) {
+      if (!this.contact.email) {
         this.errors.push('O email deve ser preenchido')
       }
-      if (!this.contato.telefone) {
+      if (!this.contact.phone) {
         this.errors.push('O telefone deve ser preenchido')
-      }if(this.contato.telefone.length > 11){
+      }if(this.contact.phone.length > 11){
         this.errors.push('Digite corretamente somente números.')
-      }else if(this.contato.telefone.length < 10){
+      }else if(this.contact.phone.length < 10){
         this.errors.push('Seu DDD também deve ser colocado')
       }
 
     },
-    listar() {
-      Contato.listar().then(resposta => {
-        this.contatos = resposta.data.content
+    list() {
+      Contact.list().then(resposta => {
+        this.contacts = resposta.data.content
       }).catch(e => {
         console.log(e)
       })
     },
-    salvar() {
-      if (!this.contato.agendaId) {
-        Contato.salvar(this.contato).then(resposta => {
-          this.contato = {}
+    save() {
+      if (!this.contact.id) {
+        Contact.save(this.contact).then(resposta => {
+          this.contact = {}
           alert('Contato salvo!')
-          this.listar()
+          this.list()
           this.errors = {}
         }).catch(e => {
           this.errors = e.response.data.errors
         })
       } else {
-        Contato.atualizar(this.contato).then(resposta => {
-          this.contato = {}
+        Contact.update(this.contact).then(resposta => {
+          this.contact = {}
           this.errors = {}
           alert('Atualizado com sucesso!')
-          this.listar()
+          this.list()
         }).catch(e => {
           this.errors = e.response.data.errors
         })
       }
 
     },
-    editar(contato) {
+    edit(contact) {
       this.errors = []
-      this.contato = contato
+      this.contact = contact
     },
-    remover(contato) {
+    remove(contact) {
       if (confirm('Deseja excluir o contato?')) {
-        Contato.apagar(contato).then(resposta => {
-          this.listar()
+        Contact.delete(contact).then(resposta => {
+          this.list()
           this.errors = {}
         }).catch(e => {
           this.errors = e.response.data.errors
